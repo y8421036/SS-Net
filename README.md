@@ -1,5 +1,5 @@
 # SS-Net: 3D Spatial-Spectral Network for Cerebrovascular Segmentation in TOF-MRA
 
 
-The network structure has been open sourced. 
-More details will be added after the paper is accepted. 
+This work has been published at ICANN 2023.
+Welcome to cite this paper.
