@@ -11,8 +11,6 @@ Welcome to cite this paper.
 
 
 requirements:
-torchinfo
-future==0.18.2
 imageio==2.9.0
 kornia==0.6.3
 matplotlib==3.2.1
