@@ -11,7 +11,7 @@ import tqdm
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from data import TestImage
-from networks import YNet_general
+from networks import SSNet
 from utils import metrics3d
 
 
@@ -52,7 +52,7 @@ def quant_eval(model, image_patch_loader, label, folder, device="cuda"):
     pred = (pred > 0.5).int()
     pred = pred.data.cpu().numpy().astype(np.uint8)
     pred = sitk.GetImageFromArray(pred)
-    pred.SetSpacing((0.5, 0.5, 0.8))  # x,y,z !!!!!!!!!!!!!!!!!!!!与读时顺序不一样！！！！！！！！！！！
+    pred.SetSpacing((0.5, 0.5, 0.8))  # x,y,z
     sitk.WriteImage(pred, pred_out_path)
 
     return sens, spec, prec, acc, dic, hd95
@@ -60,23 +60,22 @@ def quant_eval(model, image_patch_loader, label, folder, device="cuda"):
 
 def eval_ynet(args):
     sensitivity, specificity, precision, accuracy, DSC, HD95 = [], [], [], [], [], []
-    ynet_model = YNet_general(in_channels=1, ffc=True, ratio_in=args.g_ratio,).to(args.device)
-    # ynet_model = nn.DataParallel(ynet_model, device_ids=[0]).cuda()  # 训练时如果用这个函数，则load参数时也要用，不然报错！！
+    ssnet_model = SSNet(in_channels=1, ffc=True, ratio_in=args.g_ratio,).to(args.device)
+    # ssnet_model = nn.DataParallel(ssnet_model, device_ids=[0]).cuda()  # 训练时如果用这个函数，则load参数时也要用，不然报错！！
     ynet_path = path.join(args.pretrain_dir, args.pretrain_name)
     trained_model = torch.load(ynet_path)
-    ynet_model.load_state_dict(trained_model)#, strict=False)
-    ynet_model.eval()
+    ssnet_model.load_state_dict(trained_model)#, strict=False)
+    ssnet_model.eval()
 
     for folder in glob.glob(os.path.join(args.image_dir+'image', '*')):
         test_image_patch = TestImage(folder)
         test_image_patch_loader = DataLoader(test_image_patch, batch_size=1)  # 由于后续一些设置，这里batch须为1
-        label_path = os.path.join(args.image_dir + 'label', os.path.basename(folder) + '.nii')  # MIDAS
-        # label_path = os.path.join(args.image_dir + 'label', os.path.basename(folder) + '_GT.nii.gz')  # IXI
+        label_path = os.path.join(args.image_dir + 'label', os.path.basename(folder) + '.nii')
         label = sitk.ReadImage(label_path)
         label = torch.from_numpy(sitk.GetArrayFromImage(label).astype(np.float32))
         label = label.unsqueeze(0).unsqueeze(0).cuda()  # b,c,z,y,x
         
-        sens, spec, prec, acc, dic, ahd = quant_eval(ynet_model, test_image_patch_loader, label, folder)
+        sens, spec, prec, acc, dic, ahd = quant_eval(ssnet_model, test_image_patch_loader, label, folder)
         sensitivity.append(sens)
         specificity.append(spec)
         precision.append(prec)
