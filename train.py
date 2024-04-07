@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import tqdm
-from networks import YNet_general
+from networks import SSNet
 from data import TestImage, get_data
 from losses import BinaryDiceLoss, FocalLoss
 from utils import BaseOptions
@@ -66,7 +66,7 @@ def train(args):
     min_eval_loss = float("inf")
     best_iter = 0
 
-    model = YNet_general(in_channels=1, ffc=True, ratio_in=ratio).to(device)
+    model = SSNet(in_channels=1, ffc=True, ratio_in=ratio).to(device)
     model.train()
 
     optimizer = torch.optim.Adam(list(model.parameters()), lr=learning_rate,
