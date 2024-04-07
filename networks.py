@@ -15,11 +15,11 @@ def initialize_weights(*models):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-class YNet_general(nn.Module):
+class SSNet(nn.Module):
 
     def __init__(self, in_channels=1, out_channels=1, init_features=32, ratio_in=0.5, ffc=True, skip_ffc=False,
                  cat_merge=True):
-        super(YNet_general, self).__init__()
+        super(SSNet, self).__init__()
 
         self.ffc = ffc
         self.skip_ffc = skip_ffc
@@ -27,13 +27,13 @@ class YNet_general(nn.Module):
         self.cat_merge = cat_merge
 
         features = init_features
-        self.encoder1 = YNet_general._block(in_channels, features, name="enc1")
+        self.encoder1 = SSNet._block(in_channels, features, name="enc1")
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder2 = YNet_general._block(features, features * 2, name="enc2") 
+        self.encoder2 = SSNet._block(features, features * 2, name="enc2") 
         self.pool2 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder3 = YNet_general._block(features * 2, features * 4, name="enc3")
+        self.encoder3 = SSNet._block(features * 2, features * 4, name="enc3")
         self.pool3 = nn.MaxPool3d(kernel_size=2, stride=2)
-        self.encoder4 = YNet_general._block(features * 4, features * 4, name="enc4") 
+        self.encoder4 = SSNet._block(features * 4, features * 4, name="enc4") 
         self.pool4 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         if ffc:
@@ -49,43 +49,43 @@ class YNet_general(nn.Module):
                                          ratio_gout=ratio_in) 
             self.pool4_f = nn.MaxPool3d(kernel_size=2, stride=2)
 
-        self.bottleneck = YNet_general._block(features * 8, features * 8, name="bottleneck") 
+        self.bottleneck = SSNet._block(features * 8, features * 8, name="bottleneck") 
 
         if skip_ffc:
             self.upconv4 = nn.ConvTranspose3d(
                 features * 16, features * 8, kernel_size=2, stride=2
             )
-            self.decoder4 = YNet_general._block((features * 8) * 2, features * 8, name="dec4") 
+            self.decoder4 = SSNet._block((features * 8) * 2, features * 8, name="dec4") 
             self.upconv3 = nn.ConvTranspose3d(
                 features * 8, features * 4, kernel_size=2, stride=2
             )
-            self.decoder3 = YNet_general._block((features * 6) * 2, features * 4, name="dec3")
+            self.decoder3 = SSNet._block((features * 6) * 2, features * 4, name="dec3")
             self.upconv2 = nn.ConvTranspose3d(
                 features * 4, features * 2, kernel_size=2, stride=2
             )
-            self.decoder2 = YNet_general._block((features * 3) * 2, features * 2, name="dec2")
+            self.decoder2 = SSNet._block((features * 3) * 2, features * 2, name="dec2")
             self.upconv1 = nn.ConvTranspose3d(
                 features * 2, features, kernel_size=2, stride=2
             )
-            self.decoder1 = YNet_general._block(features * 3, features, name="dec1") 
+            self.decoder1 = SSNet._block(features * 3, features, name="dec1") 
 
         else:
             self.upconv4 = nn.ConvTranspose3d(
                 features * 16, features * 8, kernel_size=2, stride=2
             )
-            self.decoder4 = YNet_general._block((features * 6) * 2, features * 8, name="dec4")
+            self.decoder4 = SSNet._block((features * 6) * 2, features * 8, name="dec4")
             self.upconv3 = nn.ConvTranspose3d(
                 features * 8, features * 4, kernel_size=2, stride=2
             )
-            self.decoder3 = YNet_general._block((features * 4) * 2, features * 4, name="dec3")
+            self.decoder3 = SSNet._block((features * 4) * 2, features * 4, name="dec3")
             self.upconv2 = nn.ConvTranspose3d(
                 features * 4, features * 2, kernel_size=2, stride=2
             )
-            self.decoder2 = YNet_general._block((features * 2) * 2, features * 2, name="dec2")
+            self.decoder2 = SSNet._block((features * 2) * 2, features * 2, name="dec2")
             self.upconv1 = nn.ConvTranspose3d(
                 features * 2, features, kernel_size=2, stride=2
             )
-            self.decoder1 = YNet_general._block(features * 2, features, name="dec1") 
+            self.decoder1 = SSNet._block(features * 2, features, name="dec1") 
 
         self.final1 = nn.Conv3d(
             in_channels=features, out_channels=out_channels, kernel_size=1
