@@ -4,7 +4,7 @@ import argparse
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from torchinfo import summary
-from networks import YNet_general
+from networks import SSNet
 import surface_distance as surfdist
 
 
@@ -65,10 +65,8 @@ def print_params(n_classes):
     """
     input_shape = (1, 1, 96, 96, 96)
 
-    ynet_model = YNet_general("y_net_gen", ratio=0.5).cuda()
-
-    print("YNet")
-    summary(ynet_model, input_shape)
+    model = SSNet("y_net_gen", ratio=0.5).cuda()
+    summary(model, input_shape)
 
 
 def numeric_score(pred, gt):
