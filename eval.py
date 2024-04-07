@@ -24,7 +24,7 @@ def argument_parser():
     parser.add_argument('--device', default="cuda", choices=["cuda", "cpu"])
     parser.add_argument('--seed', default=7, type=int)
     parser.add_argument('--pretrain_dir', default="./MIDAS/3down/best")
-    parser.add_argument('--pretrain_name', default='bynet_720_0.8875.pt')
+    parser.add_argument('--pretrain_name', default='ssnet_720_0.8875.pt')
 
     return parser
 
@@ -58,12 +58,12 @@ def quant_eval(model, image_patch_loader, label, folder, device="cuda"):
     return sens, spec, prec, acc, dic, hd95
 
 
-def eval_ynet(args):
+def eval(args):
     sensitivity, specificity, precision, accuracy, DSC, HD95 = [], [], [], [], [], []
     ssnet_model = SSNet(in_channels=1, ffc=True, ratio_in=args.g_ratio,).to(args.device)
     # ssnet_model = nn.DataParallel(ssnet_model, device_ids=[0]).cuda()  # 训练时如果用这个函数，则load参数时也要用，不然报错！！
-    ynet_path = path.join(args.pretrain_dir, args.pretrain_name)
-    trained_model = torch.load(ynet_path)
+    ssnet_path = path.join(args.pretrain_dir, args.pretrain_name)
+    trained_model = torch.load(ssnet_path)
     ssnet_model.load_state_dict(trained_model)#, strict=False)
     ssnet_model.eval()
 
@@ -110,4 +110,4 @@ if __name__ == "__main__":
     if not os.path.exists(out_path):
         os.makedirs(out_path)
 
-    eval_ynet(args)
+    eval(args)
