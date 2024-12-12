@@ -4,7 +4,7 @@ This work has been published at ICANN 2023.
 
 DOI: [10.1007/978-3-031-44213-1_13](https://link.springer.com/chapter/10.1007/978-3-031-44213-1_13)
 
-And, I have made the pre-publication paper available for free download.
+I provided the pre-publication paper for free download. [paper](./paper/ICANN2023_SS_Net.pdf)
 
 The implementation of this paper is based on PyTorch.
 
